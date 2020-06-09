@@ -16,17 +16,39 @@
     <br>
     <hr>
     <h3>Datos en DB</h3>
-    <ul>
+    <table>
+      <thead>
+        <th>Nº</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>RUT</th>
+        <th>Borrar</th>
+        <th>Editar</th>
+      </thead>
+      <tbody>
+        <tr v-for="(item,index) in datos" :key="index">
+          <td>{{index+1}}</td>
+          <td>{{item.name}}</td>
+          <td>{{item.email}}</td>
+          <td>{{item.rut}}</td>
+          <td><button @click="borrando(item.id)">Borrar</button></td>
+          <td><button @click="editando(item.id)">Editar</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+<!--     <ul>
       <li v-for="(item,index) in datos" :key="index">
-        {{item.name}} - {{item.email}} - {{item.rut}} | <br>
+        {{item.name}} - {{item.email}} - {{item.rut}} - {{item.id}} | <br>
       </li>
-    </ul>
+    </ul> -->
 
   </div>
 </template>
 
 <script>
 import { db } from "../main";
+import firebase from 'firebase';
 
 export default {
   name: 'HelloWorld',
@@ -42,40 +64,65 @@ export default {
     }
   },
   methods: { 
+    editando(id){
+      let nuevoRut = prompt("Ingrese su nuevo rut",111111111);
+      db.collection("user").doc("datosUser").collection("colecion2020").doc(id)
+      .update({      
+        rut: nuevoRut
+      })
+    },
+    borrando(id){
+      console.log(id);
+      db.collection("user").doc("datosUser").collection("colecion2020").doc(id).delete().then(()=>{
+        alert(`Documento ${id} borrado`);
+      })
+    },
+    llamadoBD(){
+        db.collection("user").doc("datosUser").collection("colecion2020").where("rut", ">=", 10000).onSnapshot((respuesta)=>{
+          let auxiliar = [];
+          respuesta.forEach(elementos=>{
+            auxiliar.push({
+              name: elementos.data().name,
+              email: elementos.data().email,
+              rut: elementos.data().rut,
+              id: elementos.id,
+              creacion: elementos.data().creacion
+            });
+          })
+          this.datos = auxiliar;
+        })
+    },
     registrando(){
       if (this.correo && this.nombre && this.rut){
         db.collection("user").doc("datosUser").collection("colecion2020").add({
           name: this.nombre,
           email: this.correo,
-          rut: this.rut,
+          rut: parseInt(this.rut),
+          creacion: firebase.firestore.FieldValue.serverTimestamp()
         });
-        db.collection("user").doc("datosUser").collection("colecion2020").onSnapshot((respuesta)=>{
-          let auxiliar = [];
-          respuesta.forEach(elementos=>{
-          auxiliar.push(elementos.data());
-          })
-          this.datos = auxiliar;
-        })
-
-        db.collection("coleciones").doc(this.rut+this.nombre).set({
-          name: this.nombre,
-          email: this.correo,
-          rut: this.rut,
-        })
+        // db.collection("coleciones").doc(this.rut+this.nombre).set({
+        //   name: this.nombre,
+        //   email: this.correo,
+        //   rut: this.rut,
+        // })
       }
     } 
   },
   mounted() {
-    db.collection("usuarios").doc("V2bfGCmSUCXNS9vmTM3V").collection("premios").doc("adZbLZM1Tr9ySmZGkNmXD").get().then((response)=>{
-      console.log(response)
+    /* db.collection("usuarios").doc("V2bfGCmSUCXNS9vmTM3V").collection("premios").doc("adZbLZM1Tr9ySmZGkNmXD").get().then((response)=>{
       console.log(response.data());
-    });
-    db.collection("user").doc("datosUser").collection("colecion2020").get().then(respuesta=>{
-      console.log(respuesta);
+    }); */
+/*     db.collection("user").doc("datosUser").collection("colecion2020").get().then(respuesta=>{
       respuesta.forEach(element => {
-          this.datos.push(element.data())
+          this.datos.push({
+              name: element.data().name,
+              email: element.data().email,
+              rut: element.data().rut,
+              id: element.id
+          })
       });
-    })
+    }) */
+    this.llamadoBD();
   },
 }
 </script>
@@ -95,5 +142,12 @@ li {
 }
 a {
   color: #42b983;
+}
+
+table, th, tr , td, tbody {
+  border: 1px solid black;
+  text-align: center;
+  font-size: 18px;
+  background-color: azure;
 }
 </style>

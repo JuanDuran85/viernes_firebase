@@ -4,7 +4,6 @@
       <h3>Bienvenido: {{usuario}} | </h3>
       <a href="#" @click="salida">Salir</a>
     </div>
-    <img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
