@@ -13,6 +13,15 @@
     <input type="text" v-model="nombre" placeholder="Ingrese su Nombre"><br>
     
     <button @click="registrando">Registrar Datos</button>
+    <br>
+    <hr>
+    <h3>Datos en DB</h3>
+    <ul>
+      <li v-for="(item,index) in datos" :key="index">
+        {{item.name}} - {{item.email}} - {{item.rut}} |
+      </li>
+    </ul>
+
   </div>
 </template>
 
@@ -36,6 +45,11 @@ export default {
     registrando(){
       if (this.correo && this.nombre && this.rut){
         db.collection("user").doc("datosUser").collection("colecion2020").add({
+          name: this.nombre,
+          email: this.correo,
+          rut: this.rut,
+        });
+        db.collection("coleciones").doc(this.rut+this.nombre).set({
           name: this.nombre,
           email: this.correo,
           rut: this.rut,
