@@ -18,7 +18,7 @@
     <h3>Datos en DB</h3>
     <ul>
       <li v-for="(item,index) in datos" :key="index">
-        {{item.name}} - {{item.email}} - {{item.rut}} |
+        {{item.name}} - {{item.email}} - {{item.rut}} | <br>
       </li>
     </ul>
 
@@ -49,6 +49,14 @@ export default {
           email: this.correo,
           rut: this.rut,
         });
+        db.collection("user").doc("datosUser").collection("colecion2020").onSnapshot((respuesta)=>{
+          let auxiliar = [];
+          respuesta.forEach(elementos=>{
+          auxiliar.push(elementos.data());
+          })
+          this.datos = auxiliar;
+        })
+
         db.collection("coleciones").doc(this.rut+this.nombre).set({
           name: this.nombre,
           email: this.correo,
